@@ -31,7 +31,7 @@ namespace NeoAgi.CommandLine
             {
                 try
                 {
-                    retVal = manager.Merge<T>(new T(), dict);
+                    retVal = OptionManager.Merge(new T(), dict);
                 }
                 catch (RequiredOptionNotFoundException ex)
                 {

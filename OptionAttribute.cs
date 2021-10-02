@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace NeoAgi.CommandLine
 {
+    [AttributeUsage(AttributeTargets.Property)]
     public class OptionAttribute : Attribute
     {
         public string? FriendlyName { get; set; } = null;

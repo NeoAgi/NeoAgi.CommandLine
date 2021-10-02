@@ -13,6 +13,7 @@ namespace NeoAgi.CommandLine
         public OptionManager() { }
 
         public List<OptionAttribute> Errors {  get; set; } = new List<OptionAttribute>();
+
         public Dictionary<string, string> Parse(string[] arr)
         {
             Dictionary<string, string> tuples = new Dictionary<string, string>();
@@ -34,7 +35,7 @@ namespace NeoAgi.CommandLine
             return tuples;
         }
 
-        public T Merge<T>(T ret, Dictionary<string, string> values)
+        public static T Merge<T>(T ret, Dictionary<string, string> values)
         {
             Type typeT = typeof(T);
             foreach (PropertyInfo prop in typeT.GetProperties())
@@ -70,7 +71,7 @@ namespace NeoAgi.CommandLine
             PrintHelpOptions<T>(stdout);
         }
 
-        public void PrintHelpHeader(TextWriter stdout)
+        public static void PrintHelpHeader(TextWriter stdout)
         {
             Assembly assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
             FileVersionInfo fileInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
@@ -84,7 +85,7 @@ namespace NeoAgi.CommandLine
             stdout.WriteLine();
         }
 
-        public void PrintHelpErrors(TextWriter stdout, IEnumerable<OptionAttribute> errors)
+        public static void PrintHelpErrors(TextWriter stdout, IEnumerable<OptionAttribute> errors)
         {
             if (errors.Count() > 0)
             {
@@ -97,7 +98,7 @@ namespace NeoAgi.CommandLine
             }
         }
 
-        public void PrintHelpOptions<T>(TextWriter stdout) where T : new()
+        public static void PrintHelpOptions<T>(TextWriter stdout) where T : new()
         {
             stdout.WriteLine("Options:");
 
