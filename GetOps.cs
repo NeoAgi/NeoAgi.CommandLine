@@ -6,16 +6,37 @@ using System.Threading.Tasks;
 
 namespace NeoAgi.CommandLine
 {
-    public static class StringArrayExtension 
+    public static class StringArrayExtension
     {
-        public static T GetOps<T>(this string[] args, out bool success) where T : new()
+        public static T GetOps<T>(this string[] args, Action<OptionManager, OptionAttribute, ExitDirective>? func = null) where T : new()
         {
             OptionManager manager = new OptionManager();
             Dictionary<string, string> dict = manager.Parse(args);
 
-            T retVal = manager.Merge<T>(new T(), dict);
+            T retVal = new T();
 
-            success = true;
+            try
+            {
+                retVal = manager.Merge<T>(new T(), dict);
+            }
+            catch (RequiredOptionNotFoundException ex)
+            {
+                ExitDirective exit = new ExitDirective();
+                if (func != null)
+                {
+                    func.Invoke(manager, ex.Option, exit);
+                }
+
+                if(exit.ProcessHelp)
+                {
+                    manager.PrintHelp<T>(Console.Out, ex.Option);
+                }
+
+                if (exit.ExitCode != int.MinValue)
+                {
+                    Environment.Exit(exit.ExitCode);
+                }
+            }
 
             return retVal;
         }
