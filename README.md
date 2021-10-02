@@ -21,9 +21,9 @@ T opts = args.GetOps<T>();
 * Properties marked as `Required` must have a value present
 * Optional values can be defaulted by setting the default initializer on the Property (e.g. `public int MaxAge { get; set; } = 99;`)
 
-See [OptionManager.Parse(string[] arr)](OptionManager.cs#L17) for further information.
+See [OptionManager.Parse(string[] arr)](NeoAgi.CommandLine/OptionManager.cs#L17) for further information.
 
-[GetOps.cs](GetOps.cs) handles the default interpertation of [ExitDirective.cs](ExitDirective.cs) which returns an exit code of 1 and prints the default usage help.
+[GetOps.cs](NeoAgi.CommandLine/GetOps.cs) handles the default interpertation of [ExitDirective.cs](NeoAgi.CommandLine/ExitDirective.cs) which returns an exit code of 1 and prints the default usage help.
 
 Help
 ----
@@ -47,4 +47,4 @@ ProgramArguments opts = args.GetOps<ProgramArguments>((manager, exit) => {
 
 Pay special attention of suppressing the default Help hanlder by setting `exit.ProcessHelp` to `false` if manipulating the output.  Otherwise the default usage will fire in addition to other modifications.  
 
-[OptionManager.PrintHelp<T>](OptionManager.cs#L67) describes the default usage used.
+[OptionManager.PrintHelp<T>](NeoAgi.CommandLine/OptionManager.cs#L67) describes the default usage used.
