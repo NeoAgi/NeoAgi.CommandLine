@@ -8,9 +8,16 @@ namespace NeoAgi.CommandLine
 {
     public static class StringArrayExtension 
     {
-        public static T GetOps<T>(this string[] args) where T : new()
+        public static T GetOps<T>(this string[] args, out bool success) where T : new()
         {
-            return new T();
+            OptionManager manager = new OptionManager();
+            Dictionary<string, string> dict = manager.Parse(args);
+
+            T retVal = manager.Merge<T>(new T(), dict);
+
+            success = true;
+
+            return retVal;
         }
     }
 }
