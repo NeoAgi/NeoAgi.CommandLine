@@ -127,7 +127,14 @@ namespace NeoAgi.CommandLine
                         ? attr.Description
                         : $"{attr.Description} (optional)";
 
-                    optionHash.Add(key, desc);
+                    if (string.IsNullOrWhiteSpace(desc))
+                    {
+                        optionHash.Add(key, $"{attr.FriendlyName}");
+                    }
+                    else
+                    {
+                        optionHash.Add(key, $"{attr.FriendlyName} - {desc}");
+                    }
                 }
             }
 

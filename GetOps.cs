@@ -17,7 +17,7 @@ namespace NeoAgi.CommandLine
 
             try
             {
-                manager.Parse(args);
+                dict = manager.Parse(args);
                 invokeMerge = true;
             }
             catch (RaiseHelpException)
