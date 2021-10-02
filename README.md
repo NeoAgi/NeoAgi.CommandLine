@@ -9,8 +9,19 @@ Default Behvior
 The following is all that is necessary to parse options or throw a usage diagram:
 
 ```csharp
-ProgramArguments opts = args.GetOps<ProgramArguments>();
+using NeoAgi.CommandLine;
+
+T opts = args.GetOps<T>();
 ```
+
+`T` can be any type with a constructor.  Any property decorated with (OptionAttribute)[OptionAttribute.cs] will be parsed according to the following semantics:
+
+* Loop through all `string`s in `args[]`
+* If the string begins with `-` use the next ordnal as the value
+* Properties marked as `Required` must have a value present
+* Optional values can be defaulted by setting the default initializer on the Property (e.g. `public int MaxAge { get; set; } = 99;`)
+
+See [OptionManager.Parse(string[] arr)](OptionManager.cs#L15) for further information.
 
 [GetOps.cs](GetOps.cs) handles the default interpertation of [ExitDirective.cs](ExitDirective.cs) which returns an exit code of 1 and prints the default usage help.
 
