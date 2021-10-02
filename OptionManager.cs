@@ -12,12 +12,17 @@ namespace NeoAgi.CommandLine
     {
         public OptionManager() { }
 
+        public List<OptionAttribute> Errors {  get; set; } = new List<OptionAttribute>();
         public Dictionary<string, string> Parse(string[] arr)
         {
             Dictionary<string, string> tuples = new Dictionary<string, string>();
 
             for (int i = 0; i < arr.Length; i++)
             {
+                // Special case, if the first paramater is --help, bail early and print
+                if (i == 0 && arr[i].Equals("--help"))
+                    throw new RaiseHelpException();
+
                 // Look to see if this string starts with a -, and has a value after it
                 if (arr[i].StartsWith('-') && arr.Length >= i + 1)
                 {
@@ -58,10 +63,10 @@ namespace NeoAgi.CommandLine
             return ret;
         }
 
-        public void PrintHelp<T>(TextWriter stdout, OptionAttribute? error = null) where T : new()
+        public void PrintHelp<T>(TextWriter stdout, IEnumerable<OptionAttribute>? errors = null) where T : new()
         {
             PrintHelpHeader(stdout);
-            if(error != null) PrintHelpErrors(stdout, error);
+            if(errors != null) PrintHelpErrors(stdout, errors);
             PrintHelpOptions<T>(stdout);
         }
 
@@ -70,7 +75,7 @@ namespace NeoAgi.CommandLine
             Assembly assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
             FileVersionInfo fileInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
 
-            stdout.WriteLine($"{AppDomain.CurrentDomain.FriendlyName} v{assembly.GetName().Version}");
+            stdout.WriteLine($"USAGE: {AppDomain.CurrentDomain.FriendlyName} v{assembly.GetName().Version}");
             if (!string.IsNullOrWhiteSpace(fileInfo.CompanyName) && !string.IsNullOrWhiteSpace(fileInfo.LegalCopyright))
             {
                 stdout.WriteLine($"{fileInfo.CompanyName} - {fileInfo.LegalCopyright}");
@@ -79,11 +84,17 @@ namespace NeoAgi.CommandLine
             stdout.WriteLine();
         }
 
-        public void PrintHelpErrors(TextWriter stdout, OptionAttribute error)
+        public void PrintHelpErrors(TextWriter stdout, IEnumerable<OptionAttribute> errors)
         {
-            stdout.WriteLine("ERROR(s):");
-            stdout.WriteLine($"\tThe required option '{error.FriendlyName}' was not provided.");
-            stdout.WriteLine();
+            if (errors.Count() > 0)
+            {
+                stdout.WriteLine("ERROR(s):");
+                foreach (OptionAttribute error in errors)
+                {
+                    stdout.WriteLine($"\tThe required option '{error.FriendlyName}' was not provided.");
+                }
+                stdout.WriteLine();
+            }
         }
 
         public void PrintHelpOptions<T>(TextWriter stdout) where T : new()

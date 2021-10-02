@@ -8,28 +8,49 @@ namespace NeoAgi.CommandLine
 {
     public static class StringArrayExtension
     {
-        public static T GetOps<T>(this string[] args, Action<OptionManager, OptionAttribute, ExitDirective>? func = null) where T : new()
+        public static T GetOps<T>(this string[] args, Action<OptionManager, ExitDirective>? func = null) where T : new()
         {
+            bool invokeFunc = false;
+            bool invokeMerge = false;
             OptionManager manager = new OptionManager();
-            Dictionary<string, string> dict = manager.Parse(args);
-
-            T retVal = new T();
+            Dictionary<string, string> dict = new Dictionary<string, string>();
 
             try
             {
-                retVal = manager.Merge<T>(new T(), dict);
+                manager.Parse(args);
+                invokeMerge = true;
             }
-            catch (RequiredOptionNotFoundException ex)
+            catch (RaiseHelpException)
+            {
+                invokeFunc = true;
+            }
+
+            T retVal = new T();
+
+            if (invokeMerge == true)
+            {
+                try
+                {
+                    retVal = manager.Merge<T>(new T(), dict);
+                }
+                catch (RequiredOptionNotFoundException ex)
+                {
+                    manager.Errors.Add(ex.Option);
+                    invokeFunc = true;
+                }
+            }
+
+            if (invokeFunc)
             {
                 ExitDirective exit = new ExitDirective();
                 if (func != null)
                 {
-                    func.Invoke(manager, ex.Option, exit);
+                    func.Invoke(manager, exit);
                 }
 
-                if(exit.ProcessHelp)
+                if (exit.ProcessHelp)
                 {
-                    manager.PrintHelp<T>(Console.Out, ex.Option);
+                    manager.PrintHelp<T>(Console.Out, manager.Errors);
                 }
 
                 if (exit.ExitCode != int.MinValue)
