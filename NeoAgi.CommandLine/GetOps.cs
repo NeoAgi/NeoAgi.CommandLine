@@ -8,7 +8,7 @@ namespace NeoAgi.CommandLine
 {
     public static class StringArrayExtension
     {
-        public static T GetOps<T>(this string[] args, Action<OptionManager, ExitDirective>? func = null) where T : new()
+        public static T? GetOps<T>(this string[] args, Action<OptionManager, ExitDirective>? func = null) where T : new()
         {
             bool invokeFunc = false;
             bool invokeMerge = false;
@@ -31,7 +31,7 @@ namespace NeoAgi.CommandLine
             {
                 try
                 {
-                    retVal = OptionManager.Merge(new T(), dict);
+                    retVal = OptionManager.Merge(retVal, dict);
                 }
                 catch (RequiredOptionNotFoundException ex)
                 {
@@ -53,10 +53,12 @@ namespace NeoAgi.CommandLine
                     manager.PrintHelp<T>(Console.Out, manager.Errors);
                 }
 
-                if (exit.ExitCode != int.MinValue)
+                if (exit.ExitCode != int.MinValue && exit.KillProcessOnError)
                 {
                     Environment.Exit(exit.ExitCode);
                 }
+
+                return default(T);
             }
 
             return retVal;
