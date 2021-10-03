@@ -14,4 +14,8 @@
     <PackageReference Include="coverlet.collector" Version="3.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="H:\Users\robby\projects\NeoAgi.CommandLine\NeoAgi.CommandLine\NeoAgi.CommandLine.csproj" />
+  </ItemGroup>
+
 </Project>

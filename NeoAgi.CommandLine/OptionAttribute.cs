@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NeoAgi.CommandLine
+﻿namespace NeoAgi.CommandLine
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class OptionAttribute : Attribute
