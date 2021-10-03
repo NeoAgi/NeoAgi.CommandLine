@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NeoAgi.CommandLine;
 
-namespace NeoAgi.CommandLine.Tests
+namespace NeoAgi.CommandLine.Tests.Models
 {
     internal class OptBag
     {

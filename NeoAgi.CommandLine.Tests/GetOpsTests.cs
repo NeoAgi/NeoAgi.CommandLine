@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using NeoAgi.CommandLine;
+using NeoAgi.CommandLine.Tests.Models;
 
 namespace NeoAgi.CommandLine.Tests
 {
@@ -21,10 +22,25 @@ namespace NeoAgi.CommandLine.Tests
                 "some value"
             };
 
-            OptBag? bag = args.GetOps<OptBag>();
+            OptBag? bag = args.GetOps<OptBag>((manager, exit) =>
+            {
+                exit.KillProcessOnError = false;
+            });
 
-            Assert.IsNotNull(bag, "Parameter Object Is Null");
+            Assert.IsNull(bag, "Parameter Object is not Null");
 
+            args[2] = "--option";
+
+            bag = args.GetOps<OptBag>();
+
+            Assert.IsTrue(bag != null, "Parameter Object Is Null");
+
+            Assert.Pass();
+        }
+
+        [Test]
+        public void TestMismatchedArgList()
+        {
             Assert.Pass();
         }
     }
