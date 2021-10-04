@@ -2,8 +2,19 @@
 
 namespace NeoAgi.CommandLine
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class GetOpsExtension
     {
+        /// <summary>
+        /// Helper method to parse string[] arguments into a POCO supplied by T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="args">A string[] to parse and merge into T.  Likely from Main().</param>
+        /// <param name="output">A TextWriter to send output to.  System.Console.Out will be used by default.</param>
+        /// <param name="func">An optional delegate to intercept before printing to output.  Return false to suppress the default render template.</param>
+        /// <returns></returns>
         public static T? GetOps<T>(this string[] args, TextWriter? output = null, Func<OptionManager, bool>? func = null) where T : new()
         {
             // Declare a few initial variabled
