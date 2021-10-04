@@ -29,7 +29,7 @@ namespace NeoAgi.CommandLine.Tests
             {
                 bag = args.GetOps<OptBag>();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Gobble this up, may look into Assert.Catch() in time.
             }
