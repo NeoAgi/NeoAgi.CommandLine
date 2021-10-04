@@ -15,7 +15,7 @@ namespace NeoAgi.CommandLine
         /// <param name="output">A TextWriter to send output to.  System.Console.Out will be used by default.</param>
         /// <param name="func">An optional delegate to intercept before printing to output.  Return false to suppress the default render template.</param>
         /// <returns></returns>
-        public static T? GetOps<T>(this string[] args, TextWriter? output = null, Func<OptionManager, bool>? func = null) where T : new()
+        public static T GetOps<T>(this string[] args, TextWriter? output = null, Func<OptionManager, bool>? func = null) where T : new()
         {
             // Declare a few initial variabled
             T retVal = new T();
