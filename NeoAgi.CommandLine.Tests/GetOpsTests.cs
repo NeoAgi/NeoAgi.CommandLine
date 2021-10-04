@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using NeoAgi.CommandLine;
 using NeoAgi.CommandLine.Tests.Models;
+using System;
 
 namespace NeoAgi.CommandLine.Tests
 {
@@ -22,10 +23,16 @@ namespace NeoAgi.CommandLine.Tests
                 "some value"
             };
 
-            OptBag? bag = args.GetOps<OptBag>((manager, exit) =>
+            OptBag? bag = null;
+
+            try
             {
-                exit.KillProcessOnError = false;
-            });
+                bag = args.GetOps<OptBag>();
+            }
+            catch (Exception ex)
+            {
+                // Gobble this up, may look into Assert.Catch() in time.
+            }
 
             Assert.IsNull(bag, "Parameter Object is not Null");
 
