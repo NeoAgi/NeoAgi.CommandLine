@@ -5,14 +5,29 @@ using System.Linq;
 
 namespace NeoAgi.CommandLine
 {
+    /// <summary>
+    /// Manager of Options to Parse, Merge, and Render Information about the process.
+    /// </summary>
     public class OptionManager
     {
+        /// <summary>
+        /// List of Errors Encountered.  If > 0 the parse can be consiered unhealthy.
+        /// </summary>
         public List<OptionAttribute> Errors { get; set; } = new List<OptionAttribute>();
 
-        protected static Dictionary<Type, Dictionary<PropertyInfo, OptionAttribute>> _reflectCache = new Dictionary<Type, Dictionary<PropertyInfo, OptionAttribute>>();
+        private static Dictionary<Type, Dictionary<PropertyInfo, OptionAttribute>> _reflectCache = new Dictionary<Type, Dictionary<PropertyInfo, OptionAttribute>>();
 
+        /// <summary>
+        /// Default Constructor
+        /// </summary>
         public OptionManager() { }
 
+        /// <summary>
+        /// Method to parse the inputted string[] and return corresponding tuples
+        /// </summary>
+        /// <param name="arr"></param>
+        /// <returns></returns>
+        /// <exception cref="RaiseHelpException"></exception>
         public Dictionary<string, string> Parse(string[] arr)
         {
             Dictionary<string, string> tuples = new Dictionary<string, string>();
@@ -34,6 +49,14 @@ namespace NeoAgi.CommandLine
             return tuples;
         }
 
+        /// <summary>
+        /// Validator of OptionAttributes on T with Parsed parameters from Parse()
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ret"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        /// <exception cref="RequiredOptionNotFoundException"></exception>
         public static T Merge<T>(T ret, Dictionary<string, string> values)
         {
             Dictionary<PropertyInfo, OptionAttribute> propBag = ReflectType<T>();
@@ -63,6 +86,12 @@ namespace NeoAgi.CommandLine
             return ret;
         }
 
+        /// <summary>
+        /// Default Print Template
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="stdout"></param>
+        /// <param name="errors"></param>
         public void PrintHelp<T>(TextWriter stdout, IEnumerable<OptionAttribute>? errors = null) where T : new()
         {
             PrintHelpHeader(stdout);
@@ -70,6 +99,10 @@ namespace NeoAgi.CommandLine
             PrintHelpOptions<T>(stdout);
         }
 
+        /// <summary>
+        /// Default Header Template Component
+        /// </summary>
+        /// <param name="stdout"></param>
         public static void PrintHelpHeader(TextWriter stdout)
         {
             Assembly assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
@@ -84,6 +117,11 @@ namespace NeoAgi.CommandLine
             stdout.WriteLine();
         }
 
+        /// <summary>
+        /// Default Error Template Component
+        /// </summary>
+        /// <param name="stdout"></param>
+        /// <param name="errors"></param>
         public static void PrintHelpErrors(TextWriter stdout, IEnumerable<OptionAttribute> errors)
         {
             if (errors.Count() > 0)
@@ -97,6 +135,11 @@ namespace NeoAgi.CommandLine
             }
         }
 
+        /// <summary>
+        /// Default Option Summary Template Component
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="stdout"></param>
         public static void PrintHelpOptions<T>(TextWriter stdout) where T : new()
         {
             stdout.WriteLine("Options:");
@@ -145,6 +188,12 @@ namespace NeoAgi.CommandLine
             stdout.WriteLine();
         }
 
+        /// <summary>
+        /// Helper function to cache the reflection of properties containing OptionAttributes.
+        /// </summary>
+        /// <remarks>This method may be better located in a satelite assembly.</remarks>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         protected static Dictionary<PropertyInfo, OptionAttribute> ReflectType<T>()
         {
             Type type = typeof(T);
