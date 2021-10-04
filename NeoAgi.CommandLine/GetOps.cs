@@ -19,7 +19,6 @@ namespace NeoAgi.CommandLine
         {
             // Declare a few initial variabled
             T retVal = new T();
-            bool printHelp = true;
             ApplicationException? raised = null;
             OptionManager manager = new OptionManager();
             Dictionary<string, string> dict = new Dictionary<string, string>();
@@ -47,6 +46,9 @@ namespace NeoAgi.CommandLine
                     raised = ex;
                 }
             }
+
+            // Do we need to print the help?
+            bool printHelp = (raised != null);
 
             // Regardless if an exception is raised, process the delegate
             if (func != null)
