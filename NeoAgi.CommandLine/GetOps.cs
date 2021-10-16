@@ -67,10 +67,20 @@ namespace NeoAgi.CommandLine
             }
 
             // If a exception is raised above, re-throw it now
-            if(raised != null)
+            if (raised != null)
                 throw raised;
 
             return retVal;
+        }
+
+        public static Dictionary<string, string> FlattenOpts<T>(this string[] args, string keyPrefix = "")
+        {
+            OptionManager manager = new OptionManager();
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+            
+            dict = manager.Parse(args);
+
+            return manager.Flatten<T>(keyPrefix, dict);
         }
     }
 }
