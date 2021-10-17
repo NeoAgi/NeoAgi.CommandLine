@@ -73,7 +73,14 @@ namespace NeoAgi.CommandLine
             return retVal;
         }
 
-        public static Dictionary<string, string> FlattenOpts<T>(this string[] args, string keyPrefix = "")
+        /// <summary>
+        /// Helper method to parse string[] arguments into a Dictionary&lt;string, string&gt; supplied by T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="args"></param>
+        /// <param name="keyPrefix"></param>
+        /// <returns></returns>
+        public static Dictionary<string, string> FlattenOpts<T>(this string[] args, string keyPrefix = "") where T : new()
         {
             OptionManager manager = new OptionManager();
             Dictionary<string, string> dict = new Dictionary<string, string>();

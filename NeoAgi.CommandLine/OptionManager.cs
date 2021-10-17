@@ -86,6 +86,14 @@ namespace NeoAgi.CommandLine
             return ret;
         }
 
+        /// <summary>
+        /// Validator of OptionsAttributes on T flattened to a Dictionary&lt;string, string&gt;
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="keyPrefix"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        /// <exception cref="RequiredOptionNotFoundException"></exception>
         public Dictionary<string, string> Flatten<T>(string keyPrefix, Dictionary<string, string> values)
         {
             Dictionary<string, string> ret = new Dictionary<string, string>();
