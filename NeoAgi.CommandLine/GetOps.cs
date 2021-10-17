@@ -67,10 +67,27 @@ namespace NeoAgi.CommandLine
             }
 
             // If a exception is raised above, re-throw it now
-            if(raised != null)
+            if (raised != null)
                 throw raised;
 
             return retVal;
+        }
+
+        /// <summary>
+        /// Helper method to parse string[] arguments into a Dictionary&lt;string, string&gt; supplied by T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="args"></param>
+        /// <param name="keyPrefix"></param>
+        /// <returns></returns>
+        public static Dictionary<string, string> FlattenOpts<T>(this string[] args, string keyPrefix = "") where T : new()
+        {
+            OptionManager manager = new OptionManager();
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+            
+            dict = manager.Parse(args);
+
+            return manager.Flatten<T>(keyPrefix, dict);
         }
     }
 }

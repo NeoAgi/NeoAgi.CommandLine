@@ -28,7 +28,7 @@ namespace NeoAgi.CommandLine
         /// <param name="arr"></param>
         /// <returns></returns>
         /// <exception cref="RaiseHelpException"></exception>
-        public Dictionary<string, string> Parse(string[] arr)
+        public Dictionary<string, string> Parse(string[] arr) 
         {
             Dictionary<string, string> tuples = new Dictionary<string, string>();
 
@@ -77,6 +77,44 @@ namespace NeoAgi.CommandLine
                 {
                     propFound = true;
                     prop.SetValue(ret, values[$"--{attr.LongName}"]);
+                }
+
+                if (!propFound && attr.Required)
+                    throw new RequiredOptionNotFoundException(attr);
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Validator of OptionsAttributes on T flattened to a Dictionary&lt;string, string&gt;
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="keyPrefix"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        /// <exception cref="RequiredOptionNotFoundException"></exception>
+        public Dictionary<string, string> Flatten<T>(string keyPrefix, Dictionary<string, string> values)
+        {
+            Dictionary<string, string> ret = new Dictionary<string, string>();
+            Dictionary<PropertyInfo, OptionAttribute> propBag = ReflectType<T>();
+            foreach (KeyValuePair<PropertyInfo, OptionAttribute> kvp in propBag)
+            {
+                PropertyInfo prop = kvp.Key;
+                OptionAttribute attr = kvp.Value;
+
+                bool propFound = false;
+
+                if (values.ContainsKey($"-{attr.ShortName}"))
+                {
+                    propFound = true;
+                    ret.Add(keyPrefix + prop.Name, values[$"-{attr.ShortName}"]);
+                }
+
+                if (values.ContainsKey($"--{attr.LongName}"))
+                {
+                    propFound = true;
+                    ret.Add(keyPrefix + prop.Name, values[$"--{attr.LongName}"]);
                 }
 
                 if (!propFound && attr.Required)
