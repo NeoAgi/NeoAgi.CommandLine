@@ -1,12 +1,28 @@
-NeoAgi.CommandLine.Extensions.Configuration
-===========================================
+NeoAgi.CommandLine
+==================
 
 Emulation of CommandLineParser intending to work more at home in a GenericHost World
 
-Default Behavior
-===============
+```csharp
+using NeoAgi.CommandLine;
 
-The following is an example to load NeoAgi.CommandLine into a Generic Host provider (Web or Console):
+try {
+    T opts = args.GetOps<T>();
+} 
+catch(Exception) 
+{
+    // Handle failures
+}
+```
+
+Implementaiton Details can be found at [NeoAgi.CommandLine](https://github.com/NeoAgi/NeoAgi.CommandLine/tree/main/NeoAgi.CommandLine).
+
+[NeoAgi.CommandLine](https://www.nuget.org/packages/NeoAgi.CommandLine.Extensions.Configuration/) Package is hosted on [nuget.org](https://www.nuget.org/).
+
+NeoAgi.CommandLine.Extensions.Configuration
+===========================================
+
+Generic NETCORE Host Provider for NeoAgi.CommandLine GetOps API
 
 ```csharp
 using Microsoft.Extensions.DependencyInjection;
@@ -36,46 +52,6 @@ public class Program
 }
 ```
 
-`T` must be a valid type that works with `NeoAgi.CommandLine.GetOpts<T>()`.  The current API requires two calls to propery work as expected:
+Implementaiton Details can be found at [NeoAgi.CommandLine](https://github.com/NeoAgi/NeoAgi.CommandLine/tree/main/NeoAgi.CommandLine).
 
-1. `configuration.AddOpts<ConfigType>(args, "AppSettings")` parses `args` into the IConfiguration hierarchy using `NeoAgi.CommandLine.GetOpts<T>()` constrained by `ConfigType`.  At this point `Configuration["AppSettings:SomePropertyNameFromConfigType"]` will be accessable.
-1. `services.Configure<ConfigType>(hostContext.Configuration.GetSection("AppSettings"));` injects `IOption<ConfigType>` into the DI Container using the values set into `Configuration[]` above.  
-
-`services.Configure` is only necessary if injecting into the DI container is desired.
-
-Configuration Examples
-==============
-
-The example above assumes the following setup:
-
-appsettings.json
------------------
-
-```json
-{
-  "AppSettings": {
-    "FileLocation": "Default",
-    "Category":  "Default"
-  }
-}
-```
-
-ConfigType.cs
---------------
-
-```csharp
-public class ConfigType
-    {
-        [Option(FriendlyName = "File Location", ShortName = "l", LongName = "location", Description = "Path of the File to Parse", Required = true)]
-        public string FileLocation { get; set; } = string.Empty;
-        [Option(FriendlyName = "Category", ShortName = "c", LongName = "category", Description = "Name of the Category", Required = false)]
-        public string Category { get; set; } = string.Empty;
-    }
-```
-
-Load Order
------------
-
-As appsettings.json is loaded first, the IOption<ConfigType> loaded into the DI container will output `Default` for `FileLocation` if `configuration.AddOpts<ConfigType>(args, "AppSettings");` is omitted.  Once added `FileLocation` will parse the `--location` or `-l` parameter provided to the command line overriding what is stored in appsettings.json.  
-
-This behavior is exactly like [netcore default Configuration](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-5.0#default-configuration-1).  The call to `configuration.AddOpts<T>(string[], string)` can be used as a direct replacement to `AddCommandLine(string[])`, and can be reordered to have Environment Variables or other configuration providers to override symbols loaded in if desired as long as the namespace injected into Configuration is maintained (e.g. Pay close attention to how `Configuration.GetSection("foo")` is used).
+[NeoAgi.CommandLine](https://www.nuget.org/packages/NeoAgi.CommandLine/) Package is hosted on [nuget.org](https://www.nuget.org/).
