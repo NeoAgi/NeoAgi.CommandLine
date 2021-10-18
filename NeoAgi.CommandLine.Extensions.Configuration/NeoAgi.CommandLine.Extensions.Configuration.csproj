@@ -6,7 +6,7 @@
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Copyright>2021 NeoAgi, LLC</Copyright>
-		<PackageProjectUrl>https://github.com/NeoAgi/NeoAgi.CommandLine</PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/NeoAgi/NeoAgi.CommandLine/tree/main/NeoAgi.CommandLine.Extensions.Configuration</PackageProjectUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/NeoAgi/NeoAgi.CommandLine</RepositoryUrl>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -17,10 +17,11 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<Authors>NeoAgi</Authors>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Description>NeoAgi.CommandLine Configuration Provider for Generic NETCORE Hosts</Description>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="..\README.md" Pack="true" PackagePath="" />
+		<None Include=".\README.md" Pack="true" PackagePath="" />
 		<None Include="..\LICENSE" Pack="true" PackagePath="" />
 	</ItemGroup>
 
