@@ -22,6 +22,8 @@ namespace NeoAgi.CommandLine.Extensions.Configuration
         /// Default constructor to intake command line arguments and namespace prefix.
         /// </summary>
         /// <param name="args"></param>
+        /// <param name="namespacePrefix"></param>
+        /// <param name="outputStream"></param>
         public OptsConfigurationSource(string[] args, string namespacePrefix = "", TextWriter? outputStream = null)
         {
             Arguments = args;

@@ -27,6 +27,7 @@ namespace NeoAgi.CommandLine.Extensions.Configuration
         /// </summary>
         /// <param name="args"></param>
         /// <param name="namespacePrefix"></param>
+        /// <param name="outputStream"></param>
         public OptsConfigurationProvider(string[] args, string namespacePrefix = "", TextWriter? outputStream = null)
         {
             Arguments = args;

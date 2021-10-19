@@ -35,9 +35,9 @@ namespace NeoAgi.CommandLine
             {
                 return OptionManager.Merge(retVal, manager.Parse(args));
             }
-            catch (RequiredOptionNotFoundException ex)
+            catch (CommandLineOptionParseException ex)
             {
-                manager.Errors.Add(ex.Option);
+                manager.Errors.AddRange(ex.OptionsWithErrors);
                 if (output != null)
                     manager.PrintHelp<T>(output, manager.Errors);
 
@@ -71,9 +71,9 @@ namespace NeoAgi.CommandLine
             {
                 return manager.Flatten<T>(keyPrefix, manager.Parse(args));
             }
-            catch (RequiredOptionNotFoundException ex)
+            catch (CommandLineOptionParseException ex)
             {
-                manager.Errors.Add(ex.Option);
+                manager.Errors.AddRange(ex.OptionsWithErrors);
                 if (output != null)
                     manager.PrintHelp<T>(output, manager.Errors);
 
