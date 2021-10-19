@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using NeoAgi.CommandLine;
 using NeoAgi.CommandLine.Extensions.Configuration;
+using NeoAgi.CommandLine.Exceptions;
+using System.IO;
 
 namespace NeoAgi.CommandLine.Extensions.Configuration
 {
@@ -16,8 +18,8 @@ namespace NeoAgi.CommandLine.Extensions.Configuration
     public class OptsConfigurationProvider<T> : ConfigurationProvider where T : new()
     {
         private const char SECTION_SEPARATOR = ':';
-
-        private string NamespacePrefix { get; set; }
+        private TextWriter? OutputStream { get; set; } = null;
+        private string NamespacePrefix { get; set; } = string.Empty;
         private string[] Arguments { get; set; }
 
         /// <summary>
@@ -25,10 +27,11 @@ namespace NeoAgi.CommandLine.Extensions.Configuration
         /// </summary>
         /// <param name="args"></param>
         /// <param name="namespacePrefix"></param>
-        public OptsConfigurationProvider(string[] args, string namespacePrefix = "")
+        public OptsConfigurationProvider(string[] args, string namespacePrefix = "", TextWriter? outputStream = null)
         {
-            NamespacePrefix = namespacePrefix;
             Arguments = args;
+            NamespacePrefix = namespacePrefix;
+            OutputStream = outputStream;
         }
 
         /// <summary>
@@ -39,7 +42,7 @@ namespace NeoAgi.CommandLine.Extensions.Configuration
             if (!string.IsNullOrEmpty(NamespacePrefix) && !NamespacePrefix.EndsWith(SECTION_SEPARATOR))
                 NamespacePrefix += SECTION_SEPARATOR;
 
-            Data = Arguments.FlattenOpts<T>(NamespacePrefix);
+            Data = Arguments.FlattenOpts<T>(NamespacePrefix, OutputStream);
         }
     }
 }
