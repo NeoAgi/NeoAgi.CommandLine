@@ -27,29 +27,41 @@ catch(Exception)
 * Properties marked as `Required` must have a value present
 * Optional values can be defaulted by setting the default initializer on the Property (e.g. `public int MaxAge { get; set; } = 99;`)
 
-See [OptionManager.Parse(string[] arr)](NeoAgi.CommandLine/OptionManager.cs) for further information.
+See [OptionManager.Parse(string[] arr)](OptionManager.cs) for further information.
 
-[GetOps.cs](NeoAgi.CommandLine/GetOps.cs) will raise Exceptions if help is requested (e.g. `--help` is the first argument) or if an Option cannot be parsed according to the constraints provided.  
+[GetOps.cs](GetOps.cs) will raise Exceptions if help is requested (e.g. `--help` is the first argument) or if an Option cannot be parsed according to the constraints provided.  
 
 Help
 ----
 
-To display the help without parsing args, provide `--help` as the first parameter.  
+To display the help without parsing args, provide `--help` as the first parameter.  This will throw an exception of type [RaiseHelpException](Exceptions/RaiseHelpException.cs)
 
-Overriding Default Behaivor
-===========================
+Capture Parse Output
+====================
 
-If desired the entire exit process can be intercepted with a lambda of type `Func<OptionManager, bool>` on `string[].GetOpt()`.  
+Output from the parser may be captured by providing an optional TextWriter to GetOpts<T>():
 
 ```csharp
-ProgramArguments opts = args.GetOps<ProgramArguments>((manager, exit) => {
-    manager.PrintHelpErrors(Console.Error, manager.Errors);
-    manager.PrintHelpOptions<ProgramArguments>(Console.Out);
-
-    return false;  // Returning false will suppress the default print handler
-});
+ProgramArguments opts = args.GetOps<ProgramArguments>(Console.Out);
 ```
 
-This may be used to intercept the OptionManager just after errors have been set but before invoking the default print template allowing errors to be adjusted, inspected, or removed.  All default template components are availabile if redirection to different streams is desired. 
+An exception will be raised to capture control flow.
 
-[OptionManager.PrintHelp<T>](NeoAgi.CommandLine/OptionManager.cs) describes the default usage used.
+Handling Parse Errors
+=====================
+
+Parse errors may not require the program to end.  Errors encountered in parsing are provided by throwing an exception of type [CommandLineOptionParseException](Exceptions/CommandLineOptionParseException.cs):
+
+```csharp
+try
+{
+    T opts = args.GetOps<T>();
+}
+catch (CommandLineOptionParseException ex)
+{
+    foreach(OptionAttributeError error in ex.OptionsWithErrors)
+    {
+        Console.WriteLine($"{error.Option.FriendlyName} - {error.Reason.ToString()}");
+    }
+ }
+ ```

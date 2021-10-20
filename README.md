@@ -25,15 +25,25 @@ NeoAgi.CommandLine.Extensions.Configuration
 Generic NETCORE Host Provider for NeoAgi.CommandLine GetOps API
 
 ```csharp
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
 
 public class Program
 {
     public static void Main(string[] args)
     {
-        CreateHostBuilder(args).Build().Run();
+        try
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
+        catch (CommandLineOptionParseException ex)
+        {
+            foreach(var option in ex.OptionsWithErrors)
+            {
+                Console.WriteLine($"{option.Option.FriendlyName} - {option.Reason.ToString()}");
+            }
+        }
     }
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -42,7 +52,8 @@ public class Program
             {
                 configuration.Sources.Clear();
                 configuration.AddJsonFile("appsettings.json", optional: false);
-                configuration.AddOpts<ConfigType>(args, "AppSettings");
+                configuration.AddOpts<PrunerConfig>(args, "AppSettings", outputStream: Console.Out);
+                // Note: outputStream is only required if capturing the output of the parser is desired
             })
             .ConfigureServices((hostContext, services) =>
             {
@@ -52,6 +63,6 @@ public class Program
 }
 ```
 
-Implementaiton Details can be found at [NeoAgi.CommandLine](https://github.com/NeoAgi/NeoAgi.CommandLine/tree/main/NeoAgi.CommandLine).
+Implementaiton Details can be found at [NeoAgi.CommandLine.Extensions.Configuration](https://github.com/NeoAgi/NeoAgi.CommandLine/tree/main/NeoAgi.CommandLine.Extensions.Configuration).
 
 [NeoAgi.CommandLine](https://www.nuget.org/packages/NeoAgi.CommandLine/) Package is hosted on [nuget.org](https://www.nuget.org/).
