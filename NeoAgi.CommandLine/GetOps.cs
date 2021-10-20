@@ -60,7 +60,7 @@ namespace NeoAgi.CommandLine
         /// <param name="keyPrefix"></param>
         /// <param name="output">A TextWriter to send output to.  System.Console.Out will be used by default.</param>
         /// <returns></returns>
-        public static Dictionary<string, string> FlattenOpts<T>(this string[] args, string keyPrefix = "", TextWriter? output = null) where T : new()
+        public static Dictionary<string, string?> FlattenOpts<T>(this string[] args, string keyPrefix = "", TextWriter? output = null) where T : new()
         {
             // Declare a few initial variabled
             T retVal = new T();
@@ -69,7 +69,7 @@ namespace NeoAgi.CommandLine
 
             try
             {
-                return manager.Flatten<T>(keyPrefix, manager.Parse(args));
+                return manager.Flatten<T>(retVal, keyPrefix, manager.Parse(args));
             }
             catch (CommandLineOptionParseException ex)
             {

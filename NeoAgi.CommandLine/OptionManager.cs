@@ -94,42 +94,34 @@ namespace NeoAgi.CommandLine
         /// Validator of OptionsAttributes on T flattened to a Dictionary&lt;string, string&gt;
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="ret"></param>
         /// <param name="keyPrefix"></param>
         /// <param name="values"></param>
         /// <returns></returns>
         /// <exception cref="CommandLineOptionParseException"></exception>
-        public Dictionary<string, string> Flatten<T>(string keyPrefix, Dictionary<string, string> values)
+        public Dictionary<string, string?> Flatten<T>(T ret, string keyPrefix, Dictionary<string, string> values)
         {
-            List<OptionAttributeError> errors = new List<OptionAttributeError>();
-            Dictionary<string, string> ret = new Dictionary<string, string>();
+            ret = Merge<T>(ret, values);
+
             Dictionary<PropertyInfo, OptionAttribute> propBag = ReflectType<T>();
-            foreach (KeyValuePair<PropertyInfo, OptionAttribute> kvp in propBag)
+            Dictionary<string, string?> retVal = new Dictionary<string, string?>();
+
+            foreach(KeyValuePair<PropertyInfo, OptionAttribute> kvp in propBag)
             {
-                PropertyInfo prop = kvp.Key;
-                OptionAttribute attr = kvp.Value;
-
-                bool propFound = false;
-
-                if (values.ContainsKey($"-{attr.ShortName}"))
+                string? sValue;
+                object? oValue = kvp.Key.GetValue(ret);
+                if(oValue == null)
                 {
-                    propFound = true;
-                    ret.Add(keyPrefix + prop.Name, values[$"-{attr.ShortName}"]);
+                    sValue = null;
+                } else
+                {
+                    sValue = oValue.ToString();
                 }
 
-                if (values.ContainsKey($"--{attr.LongName}"))
-                {
-                    propFound = true;
-                    ret.Add(keyPrefix + prop.Name, values[$"--{attr.LongName}"]);
-                }
-
-                if (!propFound && attr.Required)
-                    errors.Add(new OptionAttributeError(attr, OptionAttributeErrorReason.REQUIRED));
+                retVal.Add(keyPrefix + kvp.Key.Name, sValue);
             }
 
-            if(errors.Count > 0)
-                throw new CommandLineOptionParseException(errors);
-
-            return ret;
+            return retVal;
         }
 
         /// <summary>
