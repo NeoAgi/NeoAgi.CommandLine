@@ -13,7 +13,7 @@ namespace NeoAgi.CommandLine
         /// <summary>
         /// List of Errors Encountered.  If > 0 the parse can be consiered unhealthy.
         /// </summary>
-        public List<OptionAttribute> Errors { get; set; } = new List<OptionAttribute>();
+        public List<OptionAttributeError> Errors { get; set; } = new List<OptionAttributeError>();
 
         private static Dictionary<Type, Dictionary<PropertyInfo, OptionAttribute>> _reflectCache = new Dictionary<Type, Dictionary<PropertyInfo, OptionAttribute>>();
 
@@ -56,9 +56,10 @@ namespace NeoAgi.CommandLine
         /// <param name="ret"></param>
         /// <param name="values"></param>
         /// <returns></returns>
-        /// <exception cref="RequiredOptionNotFoundException"></exception>
+        /// <exception cref="CommandLineOptionParseException"></exception>
         public static T Merge<T>(T ret, Dictionary<string, string> values)
         {
+            List<OptionAttributeError> errors = new List<OptionAttributeError>();
             Dictionary<PropertyInfo, OptionAttribute> propBag = ReflectType<T>();
             foreach (KeyValuePair<PropertyInfo, OptionAttribute> kvp in propBag)
             {
@@ -80,8 +81,11 @@ namespace NeoAgi.CommandLine
                 }
 
                 if (!propFound && attr.Required)
-                    throw new RequiredOptionNotFoundException(attr);
+                    errors.Add(new OptionAttributeError(attr, OptionAttributeErrorReason.REQUIRED));
             }
+
+            if (errors.Count > 0)
+                throw new CommandLineOptionParseException(errors);
 
             return ret;
         }
@@ -93,9 +97,10 @@ namespace NeoAgi.CommandLine
         /// <param name="keyPrefix"></param>
         /// <param name="values"></param>
         /// <returns></returns>
-        /// <exception cref="RequiredOptionNotFoundException"></exception>
+        /// <exception cref="CommandLineOptionParseException"></exception>
         public Dictionary<string, string> Flatten<T>(string keyPrefix, Dictionary<string, string> values)
         {
+            List<OptionAttributeError> errors = new List<OptionAttributeError>();
             Dictionary<string, string> ret = new Dictionary<string, string>();
             Dictionary<PropertyInfo, OptionAttribute> propBag = ReflectType<T>();
             foreach (KeyValuePair<PropertyInfo, OptionAttribute> kvp in propBag)
@@ -118,8 +123,11 @@ namespace NeoAgi.CommandLine
                 }
 
                 if (!propFound && attr.Required)
-                    throw new RequiredOptionNotFoundException(attr);
+                    errors.Add(new OptionAttributeError(attr, OptionAttributeErrorReason.REQUIRED));
             }
+
+            if(errors.Count > 0)
+                throw new CommandLineOptionParseException(errors);
 
             return ret;
         }
@@ -130,7 +138,7 @@ namespace NeoAgi.CommandLine
         /// <typeparam name="T"></typeparam>
         /// <param name="stdout"></param>
         /// <param name="errors"></param>
-        public void PrintHelp<T>(TextWriter stdout, IEnumerable<OptionAttribute>? errors = null) where T : new()
+        public void PrintHelp<T>(TextWriter stdout, IEnumerable<OptionAttributeError>? errors = null) where T : new()
         {
             PrintHelpHeader(stdout);
             if (errors != null) PrintHelpErrors(stdout, errors);
@@ -158,18 +166,26 @@ namespace NeoAgi.CommandLine
         /// <summary>
         /// Default Error Template Component
         /// </summary>
-        /// <param name="stdout"></param>
+        /// <param name="output"></param>
         /// <param name="errors"></param>
-        public static void PrintHelpErrors(TextWriter stdout, IEnumerable<OptionAttribute> errors)
+        public static void PrintHelpErrors(TextWriter output, IEnumerable<OptionAttributeError> errors)
         {
             if (errors.Count() > 0)
             {
-                stdout.WriteLine("ERROR(s):");
-                foreach (OptionAttribute error in errors)
+                output.WriteLine("ERROR(s):");
+                foreach (OptionAttributeError error in errors)
                 {
-                    stdout.WriteLine($"\tThe required option '{error.FriendlyName}' was not provided.");
+                    List<string> optionNames = new List<string>(2);
+                    if(!string.IsNullOrEmpty(error.Option.ShortName))
+                        optionNames.Add("-" + error.Option.ShortName);
+
+                    if (!string.IsNullOrEmpty(error.Option.LongName))
+                        optionNames.Add("--" + error.Option.LongName);
+
+                    if(error.Reason.HasFlag(OptionAttributeErrorReason.REQUIRED))
+                        output.WriteLine($"\tThe required option '{error.Option.FriendlyName}' was not provided by {string.Join(" or ", optionNames.ToArray())}");
                 }
-                stdout.WriteLine();
+                output.WriteLine();
             }
         }
 

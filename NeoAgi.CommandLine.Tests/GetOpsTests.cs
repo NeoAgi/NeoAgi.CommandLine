@@ -27,7 +27,7 @@ namespace NeoAgi.CommandLine.Tests
 
             try
             {
-                bag = args.GetOps<OptBag>();
+                bag = args.GetOpts<OptBag>();
             }
             catch (Exception)
             {
@@ -38,7 +38,7 @@ namespace NeoAgi.CommandLine.Tests
 
             args[2] = "--option";
 
-            bag = args.GetOps<OptBag>();
+            bag = args.GetOpts<OptBag>();
 
             Assert.IsTrue(bag != null, "Parameter Object Is Null");
 

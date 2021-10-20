@@ -12,65 +12,44 @@ namespace NeoAgi.CommandLine
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="args">A string[] to parse and merge into T.  Likely from Main().</param>
-        /// <param name="output">A TextWriter to send output to.  System.Console.Out will be used by default.</param>
-        /// <param name="func">An optional delegate to intercept before printing to output.  Return false to suppress the default render template.</param>
         /// <returns></returns>
-        public static T GetOps<T>(this string[] args, TextWriter? output = null, Func<OptionManager, bool>? func = null) where T : new()
+        public static T GetOpts<T>(this string[] args) where T : new()
+        {
+            return args.GetOpts<T>(null);
+        }
+
+        /// <summary>
+        /// Helper method to parse string[] arguments into a POCO supplied by T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="args">A string[] to parse and merge into T.  Likely from Main().</param>
+        /// <param name="output">A TextWriter to send output to.  System.Console.Out will be used by default.</param>
+        /// <returns></returns>
+        public static T GetOpts<T>(this string[] args, TextWriter? output = null) where T : new()
         {
             // Declare a few initial variabled
             T retVal = new T();
-            ApplicationException? raised = null;
             OptionManager manager = new OptionManager();
-            Dictionary<string, string> dict = new Dictionary<string, string>();
 
-            // First try to parse the arguments, if an exception is raised here, captured it but proceed on
             try
             {
-                dict = manager.Parse(args);
+                return OptionManager.Merge(retVal, manager.Parse(args));
             }
-            catch (RaiseHelpException ex)
+            catch (CommandLineOptionParseException ex)
             {
-                raised = ex;
-            }
+                manager.Errors.AddRange(ex.OptionsWithErrors);
+                if (output != null)
+                    manager.PrintHelp<T>(output, manager.Errors);
 
-            // If we didn't error above, attempt to merge
-            if (raised == null)
+                throw;
+            }
+            catch (RaiseHelpException)
             {
-                try
-                {
-                    retVal = OptionManager.Merge(retVal, dict);
-                }
-                catch (RequiredOptionNotFoundException ex)
-                {
-                    manager.Errors.Add(ex.Option);
-                    raised = ex;
-                }
+                if (output != null)
+                    manager.PrintHelp<T>(output);
+
+                throw;
             }
-
-            // Do we need to print the help?
-            bool printHelp = (raised != null);
-
-            // Regardless if an exception is raised, process the delegate
-            if (func != null)
-            {
-                printHelp = func.Invoke(manager);
-            }
-
-            if (printHelp)
-            {
-                if (output == null)
-                {
-                    output = Console.Out;
-                }
-
-                manager.PrintHelp<T>(output, manager.Errors);
-            }
-
-            // If a exception is raised above, re-throw it now
-            if (raised != null)
-                throw raised;
-
-            return retVal;
         }
 
         /// <summary>
@@ -79,15 +58,34 @@ namespace NeoAgi.CommandLine
         /// <typeparam name="T"></typeparam>
         /// <param name="args"></param>
         /// <param name="keyPrefix"></param>
+        /// <param name="output">A TextWriter to send output to.  System.Console.Out will be used by default.</param>
         /// <returns></returns>
-        public static Dictionary<string, string> FlattenOpts<T>(this string[] args, string keyPrefix = "") where T : new()
+        public static Dictionary<string, string> FlattenOpts<T>(this string[] args, string keyPrefix = "", TextWriter? output = null) where T : new()
         {
+            // Declare a few initial variabled
+            T retVal = new T();
             OptionManager manager = new OptionManager();
             Dictionary<string, string> dict = new Dictionary<string, string>();
-            
-            dict = manager.Parse(args);
 
-            return manager.Flatten<T>(keyPrefix, dict);
+            try
+            {
+                return manager.Flatten<T>(keyPrefix, manager.Parse(args));
+            }
+            catch (CommandLineOptionParseException ex)
+            {
+                manager.Errors.AddRange(ex.OptionsWithErrors);
+                if (output != null)
+                    manager.PrintHelp<T>(output, manager.Errors);
+
+                throw;
+            }
+            catch (RaiseHelpException)
+            {
+                if (output != null)
+                    manager.PrintHelp<T>(output);
+
+                throw;
+            }
         }
     }
 }

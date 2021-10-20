@@ -9,15 +9,25 @@ Default Behavior
 The following is an example to load NeoAgi.CommandLine into a Generic Host provider (Web or Console):
 
 ```csharp
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
 
 public class Program
 {
     public static void Main(string[] args)
     {
-        CreateHostBuilder(args).Build().Run();
+        try
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
+        catch (CommandLineOptionParseException ex)
+        {
+            foreach(var option in ex.OptionsWithErrors)
+            {
+                Console.WriteLine($"{option.Option.FriendlyName} - {option.Reason.ToString()}");
+            }
+        }
     }
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -26,7 +36,8 @@ public class Program
             {
                 configuration.Sources.Clear();
                 configuration.AddJsonFile("appsettings.json", optional: false);
-                configuration.AddOpts<ConfigType>(args, "AppSettings");
+                configuration.AddOpts<PrunerConfig>(args, "AppSettings", outputStream: Console.Out);
+                // Note: outputStream is only required if capturing the output of the parser is desired
             })
             .ConfigureServices((hostContext, services) =>
             {
