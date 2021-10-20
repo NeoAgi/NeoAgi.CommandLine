@@ -17,6 +17,7 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Authors>NeoAgi</Authors>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<Description>Emulation of CommandLineParser in the sytle of Linux GetOps</Description>
   </PropertyGroup>
 
   <ItemGroup>
