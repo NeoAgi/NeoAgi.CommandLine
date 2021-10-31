@@ -1,4 +1,4 @@
-﻿global using System;
+﻿using System;
 
 namespace NeoAgi.CommandLine.Exceptions
 {
