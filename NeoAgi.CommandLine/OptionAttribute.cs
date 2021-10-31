@@ -1,4 +1,6 @@
-﻿namespace NeoAgi.CommandLine
+﻿using System;
+
+namespace NeoAgi.CommandLine
 {
     /// <summary>
     /// Attribute to tag to Properties that defines how an option should be applied to the POCO

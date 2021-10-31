@@ -1,4 +1,9 @@
-﻿namespace NeoAgi.CommandLine.Exceptions
+﻿using System;
+using NeoAgi.CommandLine;
+using NeoAgi.CommandLine.Exceptions;
+using System.Collections.Generic;
+
+namespace NeoAgi.CommandLine.Exceptions
 {
     /// <summary>
     /// Raised when an option is marked required yet not satisified with the aruments provided

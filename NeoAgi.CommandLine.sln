@@ -19,6 +19,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoAgi.CommandLine.Extensions.Configuration", "NeoAgi.CommandLine.Extensions.Configuration\NeoAgi.CommandLine.Extensions.Configuration.csproj", "{6BE20FDC-27FF-4328-BAB3-81060848AA86}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{BB56B8A6-E123-4C97-B975-912DF8B068A1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{ECD76D9F-DFE1-458C-AB6A-54CE97111DB3}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\publish-tag-to-nuget.yml = .github\workflows\publish-tag-to-nuget.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +52,8 @@ Global
 		{AEEBB194-F494-4CFF-A6F8-8577F2D4D68D} = {97DDD9AF-9E11-4094-8649-FC9C8E7E2EA8}
 		{A189D941-3319-47E9-B245-12AAB8C2D91A} = {163CC305-6C21-4A4F-BBF0-F25155E65BD5}
 		{6BE20FDC-27FF-4328-BAB3-81060848AA86} = {163CC305-6C21-4A4F-BBF0-F25155E65BD5}
+		{BB56B8A6-E123-4C97-B975-912DF8B068A1} = {FC8609B5-54F8-4A09-9765-8C77D0061703}
+		{ECD76D9F-DFE1-458C-AB6A-54CE97111DB3} = {BB56B8A6-E123-4C97-B975-912DF8B068A1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F2AF858F-0B1E-4D65-9EA3-C8C8036AC8E7}
