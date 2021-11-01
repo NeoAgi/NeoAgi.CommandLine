@@ -39,7 +39,10 @@ jobs:
             # dotnet build -c Release NeoAgi.CommandLine.Extensions.Configuration/NeoAgi.CommandLine.Extensions.Configuration.csproj
 
       - name: Run Tests
-        run: dotnet test 
+        run: | 
+          ls -alh
+          pwd
+          dotnet test 
 
       - name: Pack our projects
         run: dotnet pack -c Release --include-source --include-symbols NeoAgi.CommandLine/NeoAgi.CommandLine.csproj
