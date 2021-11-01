@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31717.71
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoAgi.CommandLine.Tests", "NeoAgi.CommandLine.Tests\NeoAgi.CommandLine.Tests.csproj", "{AEEBB194-F494-4CFF-A6F8-8577F2D4D68D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoAgi.CommandLine", "H:\Users\robby\projects\NeoAgi.CommandLine\NeoAgi.CommandLine\NeoAgi.CommandLine.csproj", "{A189D941-3319-47E9-B245-12AAB8C2D91A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoAgi.CommandLine", "NeoAgi.CommandLine\NeoAgi.CommandLine.csproj", "{A189D941-3319-47E9-B245-12AAB8C2D91A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FC8609B5-54F8-4A09-9765-8C77D0061703}"
 	ProjectSection(SolutionItems) = preProject
