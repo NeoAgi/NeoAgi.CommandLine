@@ -53,4 +53,4 @@ jobs:
 
       - name: Push NeoAgi.CommandLine.Extensions.Configuration
         if: always() 
-        run: dotnet nuget push CommandLine.Extensions.Configuration/bin/Release/NeoAgi.CommandLine.Extensions.Configuration.*.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key  ${{ secrets.NEOAGI_NUGET_API_KEY }}
+        run: dotnet nuget push NeoAgi.CommandLine.Extensions.Configuration/bin/Release/NeoAgi.CommandLine.Extensions.Configuration.*.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key  ${{ secrets.NEOAGI_NUGET_API_KEY }}
