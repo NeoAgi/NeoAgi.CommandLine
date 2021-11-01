@@ -44,6 +44,7 @@ dlldata.c
 
 # Benchmark Results
 BenchmarkDotNet.Artifacts/
+coveragereport/
 
 # .NET Core
 project.lock.json
