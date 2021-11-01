@@ -38,15 +38,12 @@ jobs:
         run: dotnet build -c Release NeoAgi.CommandLine/NeoAgi.CommandLine.csproj
             # dotnet build -c Release NeoAgi.CommandLine.Extensions.Configuration/NeoAgi.CommandLine.Extensions.Configuration.csproj
 
-      - name: Run Tests
-        run: | 
-          ls -alh
-          pwd
-          dotnet test 
+       # - name: Run Tests
+       # run: dotnet test 
 
       - name: Pack our projects
         run: dotnet pack -c Release --include-source --include-symbols NeoAgi.CommandLine/NeoAgi.CommandLine.csproj
-            # dotnet pack -c Release --include-source --include-symbols NeoAgi.CommandLine.Extensions.Configuration/NeoAgi.CommandLine.Extensions.Configuration.csproj
+            dotnet pack -c Release --include-source --include-symbols NeoAgi.CommandLine.Extensions.Configuration/NeoAgi.CommandLine.Extensions.Configuration.csproj
       
       - name: Push NeoAgi.CommandLine
         if: always() 
