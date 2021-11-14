@@ -24,16 +24,16 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - name: Checkout Code
+        uses: actions/checkout@v2
       
-      - uses: actions/setup-dotnet@v1
+      # Add the 6.0 SDK to build our target platform
+      - name: Setup .NET Core 6.0
+        uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '6.0.*'
       
-      - name: Print Versions that we'll be using
-        run: dotnet --version
-          
-      - name: Build our code
+      - name: Build Code
         run: | 
           dotnet build -c Release NeoAgi.CommandLine/NeoAgi.CommandLine.csproj
           dotnet build -c Release NeoAgi.CommandLine.Extensions.Configuration/NeoAgi.CommandLine.Extensions.Configuration.csproj
@@ -41,7 +41,7 @@ jobs:
       - name: Run Tests
         run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Threshold=30 /p:ThresholdStat=total --collect:"XPlat Code Coverage"
 
-      - name: Pack our projects
+      - name: Pack Projects
         run: | 
           dotnet pack -c Release --include-source NeoAgi.CommandLine/NeoAgi.CommandLine.csproj
           dotnet pack -c Release --include-source NeoAgi.CommandLine.Extensions.Configuration/NeoAgi.CommandLine.Extensions.Configuration.csproj
