@@ -39,7 +39,7 @@ jobs:
           dotnet build -c Release NeoAgi.CommandLine.Extensions.Configuration/NeoAgi.CommandLine.Extensions.Configuration.csproj
 
       - name: Run Tests
-        run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Threshold=30 /p:ThresholdStat=total --collect:"XPlat Code Coverage"
+        run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Threshold=10 /p:ThresholdStat=total --collect:"XPlat Code Coverage"
 
       - name: Pack Projects
         run: | 
