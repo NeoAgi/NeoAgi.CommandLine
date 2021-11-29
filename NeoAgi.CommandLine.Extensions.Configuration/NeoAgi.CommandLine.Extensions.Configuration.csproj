@@ -10,7 +10,7 @@
 		<RepositoryUrl>https://github.com/NeoAgi/NeoAgi.CommandLine</RepositoryUrl>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-		<Version>1.2.0</Version>
+		<Version>1.2.1</Version>
 		<Company>NeoAgi, LLC</Company>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
