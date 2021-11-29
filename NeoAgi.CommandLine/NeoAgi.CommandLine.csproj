@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <LangVersion>preview</LangVersion>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Copyright>2021 NeoAgi, LLC</Copyright>
@@ -11,7 +10,7 @@
     <RepositoryUrl>https://github.com/NeoAgi/NeoAgi.CommandLine</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <Version>1.3.1</Version>
+    <Version>1.4.0</Version>
     <Company>NeoAgi, LLC</Company>
     <NeutralLanguage>en-US</NeutralLanguage>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
