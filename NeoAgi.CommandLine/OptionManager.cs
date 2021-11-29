@@ -104,24 +104,43 @@ namespace NeoAgi.CommandLine
         /// <exception cref="CommandLineOptionParseException"></exception>
         public Dictionary<string, string?> Flatten<T>(T ret, string keyPrefix, Dictionary<string, string> values)
         {
-            ret = Merge<T>(ret, values);
-
             Dictionary<PropertyInfo, OptionAttribute> propBag = ReflectType<T>();
             Dictionary<string, string?> retVal = new Dictionary<string, string?>();
 
             foreach(KeyValuePair<PropertyInfo, OptionAttribute> kvp in propBag)
             {
-                string? sValue;
-                object? oValue = kvp.Key.GetValue(ret);
-                if(oValue == null)
+                bool propFound = false;
+                PropertyInfo prop = kvp.Key;
+                OptionAttribute attr = kvp.Value;
+                object? oValue = default;
+
+                // Note: This is a condensed version of value look ups found in T Merge<T>() above
+                if (values.ContainsKey($"-{attr.ShortName}"))
                 {
-                    sValue = null;
-                } else
-                {
-                    sValue = oValue.ToString();
+                    propFound = true;
+                    oValue = values[$"-{attr.ShortName}"];
                 }
 
-                retVal.Add(keyPrefix + kvp.Key.Name, sValue);
+                if (values.ContainsKey($"--{attr.LongName}"))
+                {
+                    propFound = true;
+                    oValue = values[$"--{attr.LongName}"];
+                }
+
+                if(propFound)
+                {
+                    string? sValue;
+                    if (oValue == null)
+                    {
+                        sValue = null;
+                    }
+                    else
+                    {
+                        sValue = oValue.ToString();
+                    }
+
+                    retVal.Add(keyPrefix + kvp.Key.Name, sValue);
+                }
             }
 
             return retVal;

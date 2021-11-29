@@ -43,7 +43,9 @@ namespace NeoAgi.CommandLine.Extensions.Configuration
             if (!string.IsNullOrEmpty(NamespacePrefix) && !NamespacePrefix.EndsWith(SECTION_SEPARATOR))
                 NamespacePrefix += SECTION_SEPARATOR;
 
-            Data = Arguments.FlattenOpts<T>(NamespacePrefix, OutputStream);
+            Dictionary<string, string?> args = Arguments.FlattenOpts<T>(NamespacePrefix, OutputStream);
+
+            Data = args;
         }
     }
 }
