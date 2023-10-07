@@ -31,7 +31,7 @@ namespace NeoAgi.CommandLine
         /// <param name="arr"></param>
         /// <returns></returns>
         /// <exception cref="RaiseHelpException"></exception>
-        public Dictionary<string, string> Parse(string[] arr) 
+        public Dictionary<string, string> Parse(string[] arr)
         {
             Dictionary<string, string> tuples = new Dictionary<string, string>();
 
@@ -104,10 +104,11 @@ namespace NeoAgi.CommandLine
         /// <exception cref="CommandLineOptionParseException"></exception>
         public Dictionary<string, string?> Flatten<T>(T ret, string keyPrefix, Dictionary<string, string> values)
         {
+            List<OptionAttributeError> errors = new List<OptionAttributeError>();
             Dictionary<PropertyInfo, OptionAttribute> propBag = ReflectType<T>();
             Dictionary<string, string?> retVal = new Dictionary<string, string?>();
 
-            foreach(KeyValuePair<PropertyInfo, OptionAttribute> kvp in propBag)
+            foreach (KeyValuePair<PropertyInfo, OptionAttribute> kvp in propBag)
             {
                 bool propFound = false;
                 PropertyInfo prop = kvp.Key;
@@ -127,7 +128,7 @@ namespace NeoAgi.CommandLine
                     oValue = values[$"--{attr.LongName}"];
                 }
 
-                if(propFound)
+                if (propFound)
                 {
                     string? sValue;
                     if (oValue == null)
@@ -141,7 +142,12 @@ namespace NeoAgi.CommandLine
 
                     retVal.Add(keyPrefix + kvp.Key.Name, sValue);
                 }
+                else if (!propFound && attr.Required)
+                    errors.Add(new OptionAttributeError(attr, OptionAttributeErrorReason.REQUIRED));
             }
+
+            if (errors.Count > 0)
+                throw new CommandLineOptionParseException(errors);
 
             return retVal;
         }
@@ -190,13 +196,13 @@ namespace NeoAgi.CommandLine
                 foreach (OptionAttributeError error in errors)
                 {
                     List<string> optionNames = new List<string>(2);
-                    if(!string.IsNullOrEmpty(error.Option.ShortName))
+                    if (!string.IsNullOrEmpty(error.Option.ShortName))
                         optionNames.Add("-" + error.Option.ShortName);
 
                     if (!string.IsNullOrEmpty(error.Option.LongName))
                         optionNames.Add("--" + error.Option.LongName);
 
-                    if(error.Reason.HasFlag(OptionAttributeErrorReason.REQUIRED))
+                    if (error.Reason.HasFlag(OptionAttributeErrorReason.REQUIRED))
                         output.WriteLine($"\tThe required option '{error.Option.FriendlyName}' was not provided by {string.Join(" or ", optionNames.ToArray())}");
                 }
                 output.WriteLine();
@@ -216,7 +222,7 @@ namespace NeoAgi.CommandLine
             int maxKeyLen = 0;
 
             Dictionary<PropertyInfo, OptionAttribute> propBag = ReflectType<T>();
-            foreach(KeyValuePair<PropertyInfo, OptionAttribute> kvp in propBag)
+            foreach (KeyValuePair<PropertyInfo, OptionAttribute> kvp in propBag)
             {
                 PropertyInfo prop = kvp.Key;
                 OptionAttribute attr = kvp.Value;
