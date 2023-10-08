@@ -16,21 +16,22 @@ namespace NeoAgi.CommandLine.Exceptions
         public List<OptionAttributeError> OptionsWithErrors { get; set; } = new List<OptionAttributeError>();
 
         /// <summary>
-        /// Required Constructor that accepts the offending OptionAttributeError
+        /// Construct an Exception with an Enumeration of Options Errors
         /// </summary>
         /// <param name="optionErrors"></param>
-        public CommandLineOptionParseException(params OptionAttributeError[] optionErrors)
-        {
-             OptionsWithErrors.AddRange(optionErrors);
-        }
+        public CommandLineOptionParseException(IEnumerable<OptionAttributeError> optionErrors) :
+            this("Options Processing Contained Errors", optionErrors)
+        { }
 
         /// <summary>
-        /// Helper to accept a type of List&lt;OptionAttributeError&gt; to avoid .ToArray() when needed.
+        /// Construct an Exception with an Enumeration of Options Errors
         /// </summary>
+        /// <param name="message"></param>
         /// <param name="optionErrors"></param>
-        public CommandLineOptionParseException(List<OptionAttributeError> optionErrors)
+        public CommandLineOptionParseException(string message, IEnumerable<OptionAttributeError> optionErrors) 
+            : base(message)
         {
-            OptionsWithErrors.AddRange(optionErrors.ToArray());
+            OptionsWithErrors.AddRange(optionErrors);
         }
     }
 }

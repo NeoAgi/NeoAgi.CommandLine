@@ -2,6 +2,7 @@ using NUnit.Framework;
 using NeoAgi.CommandLine;
 using NeoAgi.CommandLine.Tests.Models;
 using System;
+using NeoAgi.CommandLine.Exceptions;
 
 namespace NeoAgi.CommandLine.Tests
 {
@@ -43,6 +44,28 @@ namespace NeoAgi.CommandLine.Tests
             Assert.IsTrue(bag != null, "Parameter Object Is Null");
 
             Assert.Pass();
+        }
+
+        [Test]
+        public void TestGetOpsThrowRequired()
+        {
+            string[] args = new string[]
+            {
+                "--location",
+                "/path/to/blah"
+            };
+
+            OptBag? bag = null;
+
+            // Assert that an exception will be thrown
+            var exception = Assert.Throws<CommandLineOptionParseException>(() =>
+            {
+                bag = args.GetOpts<OptBag>();
+            });
+
+            // Assert the exception was thrown due to missing a required variable
+            Assert.IsTrue(exception!.OptionsWithErrors.Count > 0);
+            Assert.IsTrue(exception.OptionsWithErrors[0].Option.Required, $"Nested Option Required exception expected but not found.  Reson received {exception.OptionsWithErrors[0].Option.Required}.");
         }
 
         [Test]
