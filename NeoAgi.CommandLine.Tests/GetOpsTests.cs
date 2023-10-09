@@ -13,6 +13,7 @@ namespace NeoAgi.CommandLine.Tests
     {
         protected static string[] argsForOptionBagAllRequired = new string[] { "--location", "path/to/blah", "--option", "some value" };
         protected static string[] argsForOptionBagMostRequired = new string[] { "--location", "/path/to/blah" };
+        protected static string[] argsForOptionBagAllRequiredWithEquals = new string[] { "--location=path/to/blah", "--option", "some value" };
 
         [SetUp]
         public void Setup()
@@ -71,6 +72,15 @@ namespace NeoAgi.CommandLine.Tests
             // Assert the exception was thrown due to missing a required variable
             Assert.IsTrue(exception!.OptionsWithErrors.Count > 0);
             Assert.IsTrue(exception.OptionsWithErrors[0].Option.Required, $"Nested Option Required exception expected but not found.  Reson received {exception.OptionsWithErrors[0].Option.Required}.");
+        }
+
+        [Test(Description = "Test Args Parsing with '=' options parsing.")]
+        public void TestGetOpsEqualsSeparator()
+        {
+            OptBag bag = argsForOptionBagAllRequiredWithEquals.GetOpts<OptBag>();
+
+            Assert.IsNotNull(bag, "Option Bag was not populated");
+            Assert.AreEqual(bag.Location, argsForOptionBagAllRequired[1], $"Location was not parsed correctly.  Expected '{argsForOptionBagAllRequired[1]}', received '{bag.Location}'.");
         }
 
         [Test]

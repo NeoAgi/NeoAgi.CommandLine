@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using NeoAgi.CommandLine.Exceptions;
+using System.Text.RegularExpressions;
 
 namespace NeoAgi.CommandLine
 {
@@ -19,6 +20,8 @@ namespace NeoAgi.CommandLine
         public List<OptionAttributeError> Errors { get; set; } = new List<OptionAttributeError>();
 
         private static Dictionary<Type, Dictionary<PropertyInfo, OptionAttribute>> _reflectCache = new Dictionary<Type, Dictionary<PropertyInfo, OptionAttribute>>();
+
+        private static Regex EqualsMatch = new Regex("[-][-a-zA-Z0-9]{1,32}[=]", RegexOptions.None, new TimeSpan(0, 0, 1));
 
         /// <summary>
         /// Default Constructor
@@ -35,17 +38,33 @@ namespace NeoAgi.CommandLine
         {
             Dictionary<string, string> tuples = new Dictionary<string, string>();
 
+            // Parsing is aware of the following types of input:
+            // 1. Space Delimited: '-f bar' or '--foo bar'
+            // 2. Equal Delimited: '-f=bar' or '--foo=bar'
+
             for (int i = 0; i < arr.Length; i++)
             {
-                // Special case, if the first paramater is --help, bail early and print
-                if (i == 0 && arr[i].Equals("--help"))
+                // Special case, if the paramater is --help, bail early and print
+                if (arr[i].Equals("--help"))
                     throw new RaiseHelpException();
 
                 // Look to see if this string starts with a -, and has a value after it
-                if (arr[i].StartsWith('-') && arr.Length >= i + 1)
+                if (arr[i].StartsWith('-'))
                 {
-                    tuples.Add(arr[i], arr[i + 1]);
-                    i++;
+
+                    // Process = delimited options
+                    Match match = EqualsMatch.Match(arr[i]);
+                    if (match.Success)
+                    {
+                        // At this point match contains the value including the trailing =
+                        tuples.Add(match.Value.Substring(0, match.Value.Length - 1), arr[i].Substring(match.Value.Length));
+                    }
+                    // Process space delimted options as they require look aheads, this case should be last as it's inherently greedy
+                    else if (arr.Length >= i + 1)
+                    {
+                        tuples.Add(arr[i], arr[i + 1]);
+                        i++;
+                    }
                 }
             }
 
