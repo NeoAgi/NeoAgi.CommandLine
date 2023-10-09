@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using NeoAgi.CommandLine.Exceptions;
+using System.Text.RegularExpressions;
 
 namespace NeoAgi.CommandLine
 {
@@ -20,6 +21,8 @@ namespace NeoAgi.CommandLine
 
         private static Dictionary<Type, Dictionary<PropertyInfo, OptionAttribute>> _reflectCache = new Dictionary<Type, Dictionary<PropertyInfo, OptionAttribute>>();
 
+        private static Regex EqualsMatch = new Regex("[-][-a-zA-Z0-9]{1,32}[=]", RegexOptions.None, new TimeSpan(0, 0, 1));
+
         /// <summary>
         /// Default Constructor
         /// </summary>
@@ -31,21 +34,51 @@ namespace NeoAgi.CommandLine
         /// <param name="arr"></param>
         /// <returns></returns>
         /// <exception cref="RaiseHelpException"></exception>
-        public Dictionary<string, string> Parse(string[] arr) 
+        public Dictionary<string, string> Parse(string[] arr)
         {
             Dictionary<string, string> tuples = new Dictionary<string, string>();
 
+            // Parsing is aware of the following types of input:
+            // 1. Space Delimited: '-f bar' or '--foo bar'
+            // 2. Equal Delimited: '-f=bar' or '--foo=bar'
+            // 3. Valueless/Flags: '-f' or '--foo'
+
             for (int i = 0; i < arr.Length; i++)
             {
-                // Special case, if the first paramater is --help, bail early and print
-                if (i == 0 && arr[i].Equals("--help"))
+                // Special case, if the paramater is --help, bail early and print
+                if (arr[i].Equals("--help"))
                     throw new RaiseHelpException();
 
                 // Look to see if this string starts with a -, and has a value after it
-                if (arr[i].StartsWith('-') && arr.Length >= i + 1)
+                if (arr[i].StartsWith('-'))
                 {
-                    tuples.Add(arr[i], arr[i + 1]);
-                    i++;
+                    // Process = delimited options  (type 2)
+                    Match match = EqualsMatch.Match(arr[i]);
+                    if (match.Success)
+                    {
+                        // At this point match contains the value including the trailing =
+                        tuples.Add(match.Value.Substring(0, match.Value.Length - 1), arr[i].Substring(match.Value.Length));
+                    }
+                    // Process a flag if received as the final parameter  (type 3)
+                    else if (arr.Length == i + 1)
+                    {
+                        tuples.Add(arr[i], "true");
+                    }
+                    // Process space delimted options as they require look aheads, this case should be last as it's inherently greedy
+                    else if (arr.Length >= i + 1)
+                    {
+                        // Look to see if this is a Valueless flag in the middle of the argument list  (type 3)
+                        if (arr[i + 1].StartsWith('-'))
+                        {
+                            tuples.Add(arr[i], "true");
+                            continue;
+                        }
+
+                        // Otherwise, process this as a ' ' delimited option (type 1)
+                        tuples.Add(arr[i], arr[i + 1]);
+                        i++; // Skip processing the next argument as we know it was a value
+
+                    }
                 }
             }
 
@@ -74,13 +107,13 @@ namespace NeoAgi.CommandLine
                 if (values.ContainsKey($"-{attr.ShortName}"))
                 {
                     propFound = true;
-                    prop.SetValue(ret, values[$"-{attr.ShortName}"]);
+                    prop.SetValue(ret, ParseValueFromArgument(prop, attr, values[$"-{attr.ShortName}"]));
                 }
 
                 if (values.ContainsKey($"--{attr.LongName}"))
                 {
                     propFound = true;
-                    prop.SetValue(ret, values[$"--{attr.LongName}"]);
+                    prop.SetValue(ret, ParseValueFromArgument(prop, attr, values[$"--{attr.LongName}"]));
                 }
 
                 if (!propFound && attr.Required)
@@ -104,10 +137,11 @@ namespace NeoAgi.CommandLine
         /// <exception cref="CommandLineOptionParseException"></exception>
         public Dictionary<string, string?> Flatten<T>(T ret, string keyPrefix, Dictionary<string, string> values)
         {
+            List<OptionAttributeError> errors = new List<OptionAttributeError>();
             Dictionary<PropertyInfo, OptionAttribute> propBag = ReflectType<T>();
             Dictionary<string, string?> retVal = new Dictionary<string, string?>();
 
-            foreach(KeyValuePair<PropertyInfo, OptionAttribute> kvp in propBag)
+            foreach (KeyValuePair<PropertyInfo, OptionAttribute> kvp in propBag)
             {
                 bool propFound = false;
                 PropertyInfo prop = kvp.Key;
@@ -127,7 +161,7 @@ namespace NeoAgi.CommandLine
                     oValue = values[$"--{attr.LongName}"];
                 }
 
-                if(propFound)
+                if (propFound)
                 {
                     string? sValue;
                     if (oValue == null)
@@ -141,7 +175,12 @@ namespace NeoAgi.CommandLine
 
                     retVal.Add(keyPrefix + kvp.Key.Name, sValue);
                 }
+                else if (!propFound && attr.Required)
+                    errors.Add(new OptionAttributeError(attr, OptionAttributeErrorReason.REQUIRED));
             }
+
+            if (errors.Count > 0)
+                throw new CommandLineOptionParseException(errors);
 
             return retVal;
         }
@@ -190,13 +229,13 @@ namespace NeoAgi.CommandLine
                 foreach (OptionAttributeError error in errors)
                 {
                     List<string> optionNames = new List<string>(2);
-                    if(!string.IsNullOrEmpty(error.Option.ShortName))
+                    if (!string.IsNullOrEmpty(error.Option.ShortName))
                         optionNames.Add("-" + error.Option.ShortName);
 
                     if (!string.IsNullOrEmpty(error.Option.LongName))
                         optionNames.Add("--" + error.Option.LongName);
 
-                    if(error.Reason.HasFlag(OptionAttributeErrorReason.REQUIRED))
+                    if (error.Reason.HasFlag(OptionAttributeErrorReason.REQUIRED))
                         output.WriteLine($"\tThe required option '{error.Option.FriendlyName}' was not provided by {string.Join(" or ", optionNames.ToArray())}");
                 }
                 output.WriteLine();
@@ -216,7 +255,7 @@ namespace NeoAgi.CommandLine
             int maxKeyLen = 0;
 
             Dictionary<PropertyInfo, OptionAttribute> propBag = ReflectType<T>();
-            foreach(KeyValuePair<PropertyInfo, OptionAttribute> kvp in propBag)
+            foreach (KeyValuePair<PropertyInfo, OptionAttribute> kvp in propBag)
             {
                 PropertyInfo prop = kvp.Key;
                 OptionAttribute attr = kvp.Value;
@@ -254,6 +293,23 @@ namespace NeoAgi.CommandLine
             }
 
             stdout.WriteLine();
+        }
+
+        protected static object? ParseValueFromArgument(PropertyInfo propertyInfo, OptionAttribute attr, string value)
+        {
+            if(propertyInfo.PropertyType == typeof(bool))
+                return bool.Parse(value);
+
+            if (propertyInfo.PropertyType == typeof(int))
+                return int.Parse(value);
+
+            if (propertyInfo.PropertyType == typeof(long))
+                return long.Parse(value);
+
+            if (propertyInfo.PropertyType == typeof(decimal))
+                return decimal.Parse(value);
+
+            return value;
         }
 
         /// <summary>

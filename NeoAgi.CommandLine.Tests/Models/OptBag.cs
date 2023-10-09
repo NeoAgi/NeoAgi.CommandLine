@@ -13,5 +13,12 @@ namespace NeoAgi.CommandLine.Tests.Models
         public string Location { get; set; } = string.Empty;
         [Option(ShortName = "o", LongName = "option", FriendlyName = "Option", Description = "A longer description", Required = true)]
         public string Opt { get; set; } = string.Empty;
+
+
+        [Option(LongName = "dry-run", FriendlyName = "Dry Run", Description = "Parameter used to test for valueless flags", Required = false)]
+        public bool DryRun { get; set; } = false;
+
+        [Option(ShortName = "v", FriendlyName = "Verbosity", Description = "Parameter used to test for valueless flags", Required = false)]
+        public bool Verbosity { get; set; } = false;
     }
 }
