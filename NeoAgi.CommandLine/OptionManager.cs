@@ -295,6 +295,13 @@ namespace NeoAgi.CommandLine
             stdout.WriteLine();
         }
 
+        /// <summary>
+        /// Quick Reflector Helper to box variables to the POCO
+        /// </summary>
+        /// <param name="propertyInfo"></param>
+        /// <param name="attr"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         protected static object? ParseValueFromArgument(PropertyInfo propertyInfo, OptionAttribute attr, string value)
         {
             if(propertyInfo.PropertyType == typeof(bool))
@@ -309,6 +316,7 @@ namespace NeoAgi.CommandLine
             if (propertyInfo.PropertyType == typeof(decimal))
                 return decimal.Parse(value);
 
+            // Return the string
             return value;
         }
 
