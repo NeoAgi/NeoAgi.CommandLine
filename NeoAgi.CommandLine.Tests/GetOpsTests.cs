@@ -14,6 +14,7 @@ namespace NeoAgi.CommandLine.Tests
         protected static string[] argsForOptionBagAllRequired = new string[] { "--location", "path/to/blah", "--option", "some value" };
         protected static string[] argsForOptionBagMostRequired = new string[] { "--location", "/path/to/blah" };
         protected static string[] argsForOptionBagAllRequiredWithEquals = new string[] { "--location=path/to/blah", "--option", "some value" };
+        protected static string[] argsForOptionBagAllRequiredWithValueless = new string[] { "--location=path/to/blah", "-v", "--option", "some value", "--dry-run" };
 
         [SetUp]
         public void Setup()
@@ -81,6 +82,16 @@ namespace NeoAgi.CommandLine.Tests
 
             Assert.IsNotNull(bag, "Option Bag was not populated");
             Assert.AreEqual(bag.Location, argsForOptionBagAllRequired[1], $"Location was not parsed correctly.  Expected '{argsForOptionBagAllRequired[1]}', received '{bag.Location}'.");
+        }
+
+        [Test(Description = "Test Args Parsing of Valueless/Flags.")]
+        public void TestGetOpsValuelessFlags()
+        {
+            OptBag bag = argsForOptionBagAllRequiredWithValueless.GetOpts<OptBag>();
+
+            Assert.IsNotNull(bag, "Option Bag was not populated");
+            Assert.IsTrue(bag.DryRun, $"Dry Run flag (final-arg) was not parsed correctly.");
+            Assert.IsTrue(bag.Verbosity, $"Verbosity flag (mid-arg) was not parsed correctly.");
         }
 
         [Test]

@@ -41,6 +41,7 @@ namespace NeoAgi.CommandLine
             // Parsing is aware of the following types of input:
             // 1. Space Delimited: '-f bar' or '--foo bar'
             // 2. Equal Delimited: '-f=bar' or '--foo=bar'
+            // 3. Valueless/Flags: '-f' or '--foo'
 
             for (int i = 0; i < arr.Length; i++)
             {
@@ -51,19 +52,32 @@ namespace NeoAgi.CommandLine
                 // Look to see if this string starts with a -, and has a value after it
                 if (arr[i].StartsWith('-'))
                 {
-
-                    // Process = delimited options
+                    // Process = delimited options  (type 2)
                     Match match = EqualsMatch.Match(arr[i]);
                     if (match.Success)
                     {
                         // At this point match contains the value including the trailing =
                         tuples.Add(match.Value.Substring(0, match.Value.Length - 1), arr[i].Substring(match.Value.Length));
                     }
+                    // Process a flag if received as the final parameter  (type 3)
+                    else if (arr.Length == i + 1)
+                    {
+                        tuples.Add(arr[i], "true");
+                    }
                     // Process space delimted options as they require look aheads, this case should be last as it's inherently greedy
                     else if (arr.Length >= i + 1)
                     {
+                        // Look to see if this is a Valueless flag in the middle of the argument list  (type 3)
+                        if (arr[i + 1].StartsWith('-'))
+                        {
+                            tuples.Add(arr[i], "true");
+                            continue;
+                        }
+
+                        // Otherwise, process this as a ' ' delimited option (type 1)
                         tuples.Add(arr[i], arr[i + 1]);
-                        i++;
+                        i++; // Skip processing the next argument as we know it was a value
+
                     }
                 }
             }
@@ -93,13 +107,13 @@ namespace NeoAgi.CommandLine
                 if (values.ContainsKey($"-{attr.ShortName}"))
                 {
                     propFound = true;
-                    prop.SetValue(ret, values[$"-{attr.ShortName}"]);
+                    prop.SetValue(ret, ParseValueFromArgument(prop, attr, values[$"-{attr.ShortName}"]));
                 }
 
                 if (values.ContainsKey($"--{attr.LongName}"))
                 {
                     propFound = true;
-                    prop.SetValue(ret, values[$"--{attr.LongName}"]);
+                    prop.SetValue(ret, ParseValueFromArgument(prop, attr, values[$"--{attr.LongName}"]));
                 }
 
                 if (!propFound && attr.Required)
@@ -279,6 +293,23 @@ namespace NeoAgi.CommandLine
             }
 
             stdout.WriteLine();
+        }
+
+        protected static object? ParseValueFromArgument(PropertyInfo propertyInfo, OptionAttribute attr, string value)
+        {
+            if(propertyInfo.PropertyType == typeof(bool))
+                return bool.Parse(value);
+
+            if (propertyInfo.PropertyType == typeof(int))
+                return int.Parse(value);
+
+            if (propertyInfo.PropertyType == typeof(long))
+                return long.Parse(value);
+
+            if (propertyInfo.PropertyType == typeof(decimal))
+                return decimal.Parse(value);
+
+            return value;
         }
 
         /// <summary>
