@@ -6,7 +6,7 @@ name: Build and Publish NeoAgi.CommandLine Package
 on:
   # Triggers the workflow on push of a new tag
   push:
-    tags: [ '*' ]
+    tags: [ 'v*' ]
     
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -27,11 +27,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
       
-      # Add the 6.0 SDK to build our target platform
-      - name: Setup .NET 6.0
+      # Add the 7.0 SDK to build our target platform
+      - name: Setup .NET 7.0
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '6.0.*'
+          dotnet-version: '7.0.*'
       
       - name: Build Code
         run: | 
