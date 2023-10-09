@@ -23,7 +23,12 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+        # Capture some variables for easier reference later
+      - name: Init Workflow Variables
+        run: |
+            echo "TAG_NAME=$(echo ${{ github.ref_name }} | sed s/v// )" >> $GITHUB_ENV
+            echo "SHORT_HASH=$(echo ${{ github.sha }} | cut -c 1-8 )" >> $GITHUB_ENV
+
       - name: Checkout Code
         uses: actions/checkout@v2
       
@@ -33,27 +38,32 @@ jobs:
         with:
           dotnet-version: '7.0.*'
       
+      - name: Set Versions in Project Files
+        run: |
+          sed -i 's/<Version>0.0.1<\/Version>/<Version>${{ env.TAG_NAME }}<\/Version>/g' NeoAgi.CommandLine/NeoAgi.CommandLine.csproj
+          sed -i 's/<Version>0.0.1<\/Version>/<Version>${{ env.TAG_NAME }}<\/Version>/g' NeoAgi.CommandLine.Extensions.Configuration/NeoAgi.CommandLine.Extensions.Configuration.csproj
+
       - name: Build Code
         run: | 
-          dotnet build -c Release NeoAgi.CommandLine/NeoAgi.CommandLine.csproj
-          dotnet build -c Release NeoAgi.CommandLine.Extensions.Configuration/NeoAgi.CommandLine.Extensions.Configuration.csproj
+          dotnet build -c Release NeoAgi.CommandLine/NeoAgi.CommandLine.csproj /p:Version=${{ env.TAG_NAME }} /p:PackageVersion=${{ env.TAG_NAME }}
+          dotnet build -c Release NeoAgi.CommandLine.Extensions.Configuration/NeoAgi.CommandLine.Extensions.Configuration.csproj  /p:Version=${{ env.TAG_NAME }} /p:PackageVersion=${{ env.TAG_NAME }}
 
       - name: Run Tests
-        run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Threshold=10 /p:ThresholdStat=total --collect:"XPlat Code Coverage"
+        run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Threshold=10 /p:ThresholdStat=total --collect:"XPlat Code Coverage" /p:Version=${{ env.TAG_NAME }} /p:PackageVersion=${{ env.TAG_NAME }}
 
       - name: Pack Projects
         run: | 
-          dotnet pack -c Release --include-source NeoAgi.CommandLine/NeoAgi.CommandLine.csproj
-          dotnet pack -c Release --include-source NeoAgi.CommandLine.Extensions.Configuration/NeoAgi.CommandLine.Extensions.Configuration.csproj
+          dotnet pack -c Release --include-source NeoAgi.CommandLine/NeoAgi.CommandLine.csproj -o out-command-line/ /p:Version=${{ env.TAG_NAME }} /p:PackageVersion=${{ env.TAG_NAME }}
+          dotnet pack -c Release --include-source NeoAgi.CommandLine.Extensions.Configuration/NeoAgi.CommandLine.Extensions.Configuration.csproj -o out-command-line-config/ /p:Version=${{ env.TAG_NAME }} /p:PackageVersion=${{ env.TAG_NAME }}
       
       - name: Push NeoAgi.CommandLine
         if: always() 
         run: | 
-          rm NeoAgi.CommandLine/bin/Release/NeoAgi.CommandLine.*.symbols.nupkg
-          dotnet nuget push NeoAgi.CommandLine/bin/Release/NeoAgi.CommandLine.*.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NEOAGI_NUGET_API_KEY }}
+          rm out-command-line/NeoAgi.CommandLine.*.symbols.nupkg
+          dotnet nuget push out-command-line/NeoAgi.CommandLine.*.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NEOAGI_NUGET_API_KEY }}
 
       - name: Push NeoAgi.CommandLine.Extensions.Configuration
         if: always() 
         run: | 
-          rm NeoAgi.CommandLine.Extensions.Configuration/bin/Release/NeoAgi.CommandLine.Extensions.Configuration.*.symbols.nupkg
-          dotnet nuget push NeoAgi.CommandLine.Extensions.Configuration/bin/Release/NeoAgi.CommandLine.Extensions.Configuration.*.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key  ${{ secrets.NEOAGI_NUGET_API_KEY }}
+          rm out-command-line-config/NeoAgi.CommandLine.Extensions.Configuration.*.symbols.nupkg
+          dotnet nuget push out-command-line-config/NeoAgi.CommandLine.Extensions.Configuration.*.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key  ${{ secrets.NEOAGI_NUGET_API_KEY }}
