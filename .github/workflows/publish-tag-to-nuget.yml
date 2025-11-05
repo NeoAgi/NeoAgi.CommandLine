@@ -1,6 +1,4 @@
-# This is a basic workflow to help you get started with Actions
-
-name: Build and Publish NeoAgi.CommandLine Package
+﻿name: Build and Publish NeoAgi.CommandLine Package
 
 # Controls when the workflow will run
 on:
@@ -14,7 +12,10 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  build-and-publish:
+    # Request a Write Scoped OICD Token for this run  
+    permissions:
+        id-token: write
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     
@@ -28,6 +29,13 @@ jobs:
         run: |
             echo "TAG_NAME=$(echo ${{ github.ref_name }} | sed s/v// )" >> $GITHUB_ENV
             echo "SHORT_HASH=$(echo ${{ github.sha }} | cut -c 1-8 )" >> $GITHUB_ENV
+      
+      # Get a short-lived NuGet API key
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: ${{ secrets.NEOAGI_NUGET_ORG_USERNAME }}
 
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -55,10 +63,10 @@ jobs:
         if: always() 
         run: | 
           rm out-command-line/NeoAgi.CommandLine.*.symbols.nupkg
-          dotnet nuget push out-command-line/NeoAgi.CommandLine.*.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NEOAGI_NUGET_API_KEY }}
+          dotnet nuget push out-command-line/NeoAgi.CommandLine.*.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
 
       - name: Push NeoAgi.CommandLine.Extensions.Configuration
         if: always() 
         run: | 
           rm out-command-line-config/NeoAgi.CommandLine.Extensions.Configuration.*.symbols.nupkg
-          dotnet nuget push out-command-line-config/NeoAgi.CommandLine.Extensions.Configuration.*.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key  ${{ secrets.NEOAGI_NUGET_API_KEY }}
+          dotnet nuget push out-command-line-config/NeoAgi.CommandLine.Extensions.Configuration.*.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key  ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
