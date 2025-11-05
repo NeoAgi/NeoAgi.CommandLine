@@ -1,11 +1,8 @@
-using NUnit.Framework;
-using NeoAgi.CommandLine;
-using NeoAgi.CommandLine.Tests.Models;
-using System;
-using NeoAgi.CommandLine.Exceptions;
 using Microsoft.Extensions.Configuration;
-using NeoAgi.CommandLine.Extensions.Configuration;
-using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Extensions;
+using NeoAgi.CommandLine.Exceptions;
+using NeoAgi.CommandLine.Tests.Models;
+using NUnit.Framework;
+using System;
 
 namespace NeoAgi.CommandLine.Tests
 {
@@ -34,9 +31,9 @@ namespace NeoAgi.CommandLine.Tests
             // Try this once more, in a positive path
             bag = argsForOptionBagAllRequired.GetOpts<OptBag>();
 
-            Assert.IsTrue(bag != null, "Options were not processed.");
-            Assert.IsTrue(bag!.Location.Equals(argsForOptionBagAllRequired[1], StringComparison.Ordinal), $"OptBag.Location was not correct.  Expected {argsForOptionBagAllRequired[1]}, received {bag.Location}");
-            Assert.IsTrue(bag!.Opt.Equals(argsForOptionBagAllRequired[3], StringComparison.Ordinal), $"OptBag.Opt was not correct.  Expected {argsForOptionBagAllRequired[3]}, received {bag.Opt}");
+            Assert.That(bag != null, "Options were not processed.");
+            Assert.That(bag!.Location.Equals(argsForOptionBagAllRequired[1], StringComparison.Ordinal), $"OptBag.Location was not correct.  Expected {argsForOptionBagAllRequired[1]}, received {bag.Location}");
+            Assert.That(bag!.Opt.Equals(argsForOptionBagAllRequired[3], StringComparison.Ordinal), $"OptBag.Opt was not correct.  Expected {argsForOptionBagAllRequired[3]}, received {bag.Opt}");
 
             Assert.Pass();
         }
@@ -53,8 +50,8 @@ namespace NeoAgi.CommandLine.Tests
             });
 
             // Assert the exception was thrown due to missing a required variable
-            Assert.IsTrue(exception!.OptionsWithErrors.Count > 0);
-            Assert.IsTrue(exception.OptionsWithErrors[0].Option.Required, $"Nested Option Required exception expected but not found.  Reson received {exception.OptionsWithErrors[0].Option.Required}.");
+            Assert.That(exception!.OptionsWithErrors.Count > 0);
+            Assert.That(exception.OptionsWithErrors[0].Option.Required, $"Nested Option Required exception expected but not found.  Reson received {exception.OptionsWithErrors[0].Option.Required}.");
         }
 
         [Test(Description = "Tests the result of going down the OptionManager.Flatten<T>() which is used with Microsoft.Extensions.Configuration.")]
@@ -71,8 +68,8 @@ namespace NeoAgi.CommandLine.Tests
             });
 
             // Assert the exception was thrown due to missing a required variable
-            Assert.IsTrue(exception!.OptionsWithErrors.Count > 0);
-            Assert.IsTrue(exception.OptionsWithErrors[0].Option.Required, $"Nested Option Required exception expected but not found.  Reson received {exception.OptionsWithErrors[0].Option.Required}.");
+            Assert.That(exception!.OptionsWithErrors.Count > 0);
+            Assert.That(exception.OptionsWithErrors[0].Option.Required, $"Nested Option Required exception expected but not found.  Reson received {exception.OptionsWithErrors[0].Option.Required}.");
         }
 
         [Test(Description = "Test Args Parsing with '=' options parsing.")]
@@ -80,8 +77,8 @@ namespace NeoAgi.CommandLine.Tests
         {
             OptBag bag = argsForOptionBagAllRequiredWithEquals.GetOpts<OptBag>();
 
-            Assert.IsNotNull(bag, "Option Bag was not populated");
-            Assert.AreEqual(bag.Location, argsForOptionBagAllRequired[1], $"Location was not parsed correctly.  Expected '{argsForOptionBagAllRequired[1]}', received '{bag.Location}'.");
+            Assert.That(bag, Is.Not.Null, "Option Bag was not populated");
+            Assert.That(bag.Location.Equals(argsForOptionBagAllRequired[1]), $"Location was not parsed correctly.  Expected '{argsForOptionBagAllRequired[1]}', received '{bag.Location}'.");
         }
 
         [Test(Description = "Test Args Parsing of Valueless/Flags.")]
@@ -89,9 +86,9 @@ namespace NeoAgi.CommandLine.Tests
         {
             OptBag bag = argsForOptionBagAllRequiredWithValueless.GetOpts<OptBag>();
 
-            Assert.IsNotNull(bag, "Option Bag was not populated");
-            Assert.IsTrue(bag.DryRun, $"Dry Run flag (final-arg) was not parsed correctly.");
-            Assert.IsTrue(bag.Verbosity, $"Verbosity flag (mid-arg) was not parsed correctly.");
+            Assert.That(bag, Is.Not.Null, "Option Bag was not populated");
+            Assert.That(bag.DryRun, $"Dry Run flag (final-arg) was not parsed correctly.");
+            Assert.That(bag.Verbosity, $"Verbosity flag (mid-arg) was not parsed correctly.");
         }
 
         [Test]
