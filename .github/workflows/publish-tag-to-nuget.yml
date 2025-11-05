@@ -34,7 +34,7 @@ jobs:
       
       # Add the 9.0 SDK to build our target platform
       - name: Setup .NET 9.0
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '9.0.*'
 
